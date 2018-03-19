@@ -91,7 +91,8 @@ Page({
           // rotate:12
         }];
         that.setData({
-          markers: markers
+          markers: markers,
+          polyline: that.polyline
         });
         setTimeout(function () {
           that.markerMoving(markers, 1);
@@ -135,14 +136,74 @@ Page({
       success:function(res){
         that.steps = res.data.result.routes[0].steps;
         var arr = [];
+        that.polyline={
+          points:[],
+          color: "#FF0000DD",
+          width: 2,
+          dottedLine: true
+        };
         for (var i = 0; i < that.steps.length;i++){
-          if (that.steps[i].distance>180){
-            arr.push(that.steps[i]);
-          }
+          // if (that.steps[i].distance>180){
+          //   arr.push(that.steps[i]);
+          // }
+
+          that.polyline.points.push({
+            longitude: that.steps[i].end_location.lng,
+            latitude: that.steps[i].end_location.lat
+
+          });
         }
         that.steps = arr;
       }
     });
-  }
+  },
+
+    // getMapRoute:function() {
+    // var that = this;
+    // wx.request({
+    //   // url: 'http://apis.map.qq.com/ws/direction/v1/driving/?from=23.09430,113.35148&to=23.10430,113.37148&waypoints=39.111,116.112;39.112,116.113&output=json&key=73WBZ-Y52KF-7TLJN-N6QGO-LAJ7V-FEB32',
+    //   url: 'http://apis.map.qq.com/ws/direction/v1/driving',
+    //   data: {
+    //     from: '23.09430,113.35148',
+    //     to:'23.10430,113.37148',
+    //     key: '73WBZ-Y52KF-7TLJN-N6QGO-LAJ7V-FEB32',
+    //     output: 'json',
+    //     callback: function (data) {
+    //       console.log(data);
+    //     }
+    //   },
+      // success: function (res) {
+      //   that.steps = res.data.result.routes[0].steps;
+      //   var arr = [];
+      //   // for (var i = 0; i < that.steps.length;i++){
+      //   //   if (that.steps[i].distance>180){
+      //   //     arr.push(that.steps[i]);
+      //   //   }
+      //   // }
+      //   that.steps = arr;
+      // }
+    // });
+  // },
+
+  getCoordinate:function(arr){
+    var tempArr='';
+    for(var i=0;i<arr.length;i++){
+      tempArr.push(arr[i].latitude + ',' + arr[i].longtitude);
+    }
+    var that = this;
+    wx.request({
+      methon:'get',
+      url: 'http://apis.map.qq.com/ws/coord/v1/translate',
+      data:{
+        locations:tempArr.join(';'),
+        type:3,
+        key: '73WBZ-Y52KF-7TLJN-N6QGO-LAJ7V-FEB32',
+        output:'json',
+        callback:function(data){
+          console.log(data);
+        }
+      },
+    });
+  },
 
 })
